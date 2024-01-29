@@ -3,7 +3,7 @@ import Post from "../models/Post";
 import User from "../models/User";
 import Tag from "../models/Tag";
 import { Types } from "mongoose";
-import deleteFile from "../util/deleteFile";
+import deleteFile from "../utils/deleteFile";
 import Comment from "../models/Comment";
 import getErrorMessage from "../utils/getErrorMessage";
 

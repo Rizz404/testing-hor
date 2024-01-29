@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import User from "../models/User";
-import deleteFile from "../util/deleteFile";
+import deleteFile from "../utils/deleteFile";
 import bcrypt from "bcrypt";
 import getErrorMessage from "../utils/getErrorMessage";
 import { Types } from "mongoose";

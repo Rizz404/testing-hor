@@ -15,6 +15,8 @@ import commentRoutes from "./routes/commentRoutes";
 import tagRoutes from "./routes/tagRoutes";
 import credentials from "./middleware/credentials";
 import path from "path";
+import fs from "fs";
+import getErrorMessage from "./utils/getErrorMessage";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -37,6 +39,17 @@ app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 app.use("/comments", commentRoutes);
 app.use("/tags", tagRoutes);
+
+// * Add a simple view for root
+app.get("/", async (req, res) => {
+  try {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.write("Its working bitch");
+    res.end();
+  } catch (error) {
+    getErrorMessage(error);
+  }
+});
 
 // * Server configuration
 mongoose

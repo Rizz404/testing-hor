@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import Comment from "../models/Comment";
 import Post from "../models/Post";
-import deleteFile from "../util/deleteFile";
+import deleteFile from "../utils/deleteFile";
 import getErrorMessage from "../utils/getErrorMessage";
 
 export const createComment: RequestHandler = async (req, res) => {
