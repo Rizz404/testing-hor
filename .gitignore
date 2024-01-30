@@ -1,4 +1,7 @@
 # Logs
+images
+profilePict
+videos
 logs
 *.log
 npm-debug.log*
