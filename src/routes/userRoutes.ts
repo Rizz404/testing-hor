@@ -11,6 +11,7 @@ import {
 } from "../controllers/userControllers";
 import upload from "../middleware/multerConfig";
 import verifyJwt from "../middleware/verifyJwt";
+import uploadFilesToFirebase from "../middleware/firebaseStorageConfig";
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get("/", getUsers);
 router
   .route("/profile")
   .get(verifyJwt, getUserProfile)
-  .patch(verifyJwt, upload.single("profilePict"), updateUserProfile);
+  .patch(verifyJwt, uploadFilesToFirebase, updateUserProfile);
 router.get("/following", verifyJwt, getFollowings);
 router.get("/followers", verifyJwt, getFollowers);
 router.patch("/follow/:userId", verifyJwt, followUser); // * Undo and redo
