@@ -77,11 +77,8 @@ export const updateUserProfile: RequestHandler = async (req, res) => {
     user.bio = bio || user.bio;
 
     if (profilePict) {
-      // * Menggunakan path file yang diunggah untuk profilePict
-      if (user.profilePict) {
-        await deleteFile("profilePict", user.profilePict);
-      }
-      user.profilePict = profilePict.filename;
+      // @ts-ignore
+      user.profilePict = profilePict.fileUrl;
     }
 
     const updatedUser = await user.save();

@@ -1,48 +1,87 @@
-import { RequestHandler } from "express";
-import { v4 as uuidv4 } from "uuid";
-import getErrorMessage from "../utils/getErrorMessage";
+import multer from "multer";
 import { bucket } from "../config/firebaseConfig";
-import { RequestWithUpload } from "../types/express";
+import { v4 as uuidv4 } from "uuid";
+import { RequestHandler } from "express";
 
-const uploadFilesToFirebase: RequestHandler = async (req: RequestWithUpload, res, next) => {
+export const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 10024 }, // * max 10 mb
+});
+
+export const uploadToFirebase: RequestHandler = async (req, res, next) => {
   try {
-    const files = Array.isArray(req.files) ? req.files : [req.file];
+    const file = req.file;
 
-    if (!files) return next();
+    if (!file) return next();
 
-    const urls = await Promise.all(
-      files.map(async (file) => {
-        if (!file) return;
+    const filename = `${uuidv4()}-${file.originalname}`;
+    const firebaseFile = bucket.file(filename);
+    const blobStream = firebaseFile.createWriteStream({
+      metadata: { contentType: file.mimetype },
+    });
 
-        const blob = bucket.file(uuidv4() + file.originalname);
-        const blobStream = blob.createWriteStream({
-          metadata: {
-            contentType: file.mimetype,
-          },
-        });
+    // * Menggunakan Promise untuk menangani stream
+    const streamEnded = new Promise<void>((resolve, reject) => {
+      // * Kalo gagal
+      blobStream.on("error", reject);
 
-        return new Promise((resolve, reject) => {
-          blobStream.on("error", (err) => {
-            reject(err);
-          });
+      // * Kalo berhasil
+      blobStream.on("finish", () => {
+        // @ts-ignore
+        file.fileUrl = `https://firebasestorage.googleapis.com/v0/b/${
+          bucket.name
+        }/o/${encodeURIComponent(filename)}?alt=media`;
+        resolve();
+      });
+    });
 
-          blobStream.on("finish", () => {
-            const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${
-              bucket.name
-            }/o/${encodeURI(blob.name)}?alt=media`;
-            resolve(publicUrl);
-          });
+    blobStream.end(file.buffer);
 
-          blobStream.end(file.buffer);
-        });
-      })
-    );
-
-    req.fileUrls = urls as string[];
+    // * Tunggu stream selesai
+    await streamEnded;
     next();
   } catch (error) {
-    getErrorMessage(error);
+    next(error);
   }
 };
 
-export default uploadFilesToFirebase;
+export const uploadManyToFirebase: RequestHandler = async (req, res, next) => {
+  try {
+    const files = req.files;
+
+    if (!files || !Array.isArray(files)) return next();
+
+    // * Membuat array untuk menyimpan semua promise
+    const promises = files.map(async (file: Express.Multer.File) => {
+      const filename = `${uuidv4()}-${file.originalname}`;
+      const firebaseFile = bucket.file(filename);
+
+      const blobStream = firebaseFile.createWriteStream({
+        metadata: { contentType: file.mimetype },
+      });
+
+      // * Menggunakan Promise untuk menangani stream
+      return new Promise<void>((resolve, reject) => {
+        blobStream.on("error", reject);
+
+        blobStream.on("finish", () => {
+          // * File berhasil diunggah ke Firebase Storage
+          // @ts-ignore
+          file.fileUrl = `https://firebasestorage.googleapis.com/v0/b/${
+            bucket.name
+          }/o/${encodeURIComponent(filename)}?alt=media`;
+          resolve();
+        });
+
+        blobStream.end(file.buffer);
+      });
+    });
+
+    // * Menunggu semua file diunggah
+    await Promise.all(promises);
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};

@@ -12,16 +12,13 @@ export const createPost: RequestHandler = async (req, res) => {
     const { _id } = req.user;
     const { title, tags, description }: { title: string; tags: string[]; description: string } =
       req.body;
-    const images = req.files as Express.Multer.File[];
-
+    const images = req.files;
     const newPost = new Post({
       userId: _id,
       title,
       tags,
-      ...(images &&
-        images.length !== 0 && {
-          images: images.map((image: Express.Multer.File) => image.filename),
-        }),
+      // @ts-ignore
+      ...(images && images.length !== 0 && { images: images.map((image) => image.fileUrl) }),
       ...(description && { description }),
     });
     const savedPost = await newPost.save();

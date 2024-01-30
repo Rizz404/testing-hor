@@ -8,13 +8,16 @@ export const createComment: RequestHandler = async (req, res) => {
   try {
     const { _id } = req.user;
     const { parentId, postId } = req.params;
-    const { content, image } = req.body;
+    const { content } = req.body;
+    const image = req.file;
+
     const newComment = new Comment({
       ...(parentId && { parentId }),
       userId: _id,
       postId,
       content,
-      ...(image && { image }),
+      // @ts-ignore
+      ...(image && { image: image.fileUrl }),
     });
 
     const savedComment = await newComment.save();

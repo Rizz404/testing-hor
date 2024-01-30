@@ -11,16 +11,15 @@ import {
   getSelfPosts,
 } from "../controllers/postControllers";
 import express from "express";
-import upload from "../middleware/multerConfig";
 import verifyJwt from "../middleware/verifyJwt";
-import uploadFilesToFirebase from "../middleware/firebaseStorageConfig";
+import { upload, uploadManyToFirebase } from "../middleware/firebaseStorageConfig";
 
 const router = express.Router();
 
 // * prefixnya /posts
 
 router.get("/", getPosts);
-router.post("/", verifyJwt, uploadFilesToFirebase, createPost);
+router.post("/", verifyJwt, upload.array("images", 7), uploadManyToFirebase, createPost);
 router.get("/search", searchPostsByTitle);
 router.get("/saved", verifyJwt, getSavedPosts);
 router.get("/self", verifyJwt, getSelfPosts);
