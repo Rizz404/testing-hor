@@ -1,4 +1,4 @@
-import { ParamsDictionary } from "express-serve-static-core";
+import { ParamsDictionary, Request } from "express-serve-static-core";
 
 interface ReqParams extends ParamsDictionary {
   userId: string;
@@ -6,4 +6,10 @@ interface ReqParams extends ParamsDictionary {
   tagId: string;
   commentId: string;
   parentId: string;
+}
+
+interface RequestWithUpload extends Request {
+  fileUploadError?: Error;
+  fileUrl?: string;
+  fileUrls?: string[];
 }

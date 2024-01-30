@@ -6,12 +6,14 @@ import path from "path";
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // * Menentukan folder tujuan berdasarkan field name
-    if (file.fieldname === "images" || file.fieldname === "image") {
+    if (
+      file.fieldname === "images" ||
+      file.fieldname === "image" ||
+      file.fieldname === "profilePict"
+    ) {
       cb(null, path.join(__dirname, "../public/assets/images"));
     } else if (file.fieldname === "video") {
       cb(null, path.join(__dirname, "../public/assets/videos"));
-    } else if (file.fieldname === "profilePict") {
-      cb(null, path.join(__dirname, "../public/assets/profilePict"));
     }
   },
   filename: function (req, file, cb) {
