@@ -28,8 +28,8 @@ app.use(credentials);
 app.use(cors(corsOptions));
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" })); // ! buat image harus begini
-app.use(morgan("dev"));
-app.use(morgan("combined", { stream: logger }));
+// app.use(morgan("dev")); // ! netlify itu readonly jadi gabisa add log otomatis
+// app.use(morgan("combined", { stream: logger }));
 app.use("/assets", express.static(path.join(__dirname, "./public/assets")));
 
 // * Routes
