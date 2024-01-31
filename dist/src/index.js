@@ -51,4 +51,5 @@ mongoose
     .connect(process.env.DB_URI || "")
     .then(() => app.listen(PORT, () => console.log(`Server run on port ${PORT}`)))
     .catch((error) => console.log(error));
+export default app;
 //# sourceMappingURL=index.js.map

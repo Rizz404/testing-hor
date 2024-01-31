@@ -1,12 +1,7 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var allowedOrigins_1 = __importDefault(require("../config/allowedOrigins"));
-var corsOptions = {
-    origin: function (origin, callback) {
-        if (allowedOrigins_1.default.indexOf(origin || "") !== -1 || !origin) {
+import allowedOrigins from "../config/allowedOrigins";
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (allowedOrigins.indexOf(origin || "") !== -1 || !origin) {
             callback(null, true);
         }
         else {
@@ -15,5 +10,5 @@ var corsOptions = {
     },
     optionsSuccessStatus: 200,
 };
-exports.default = corsOptions;
+export default corsOptions;
 //# sourceMappingURL=corsConfig.js.map

@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var getErrorMessage = function (error) {
-    var message;
+const getErrorMessage = (error) => {
+    let message;
     if (error instanceof Error) {
         message = error.message;
     }
@@ -16,5 +14,5 @@ var getErrorMessage = function (error) {
     }
     return message;
 };
-exports.default = getErrorMessage;
+export default getErrorMessage;
 //# sourceMappingURL=getErrorMessage.js.map

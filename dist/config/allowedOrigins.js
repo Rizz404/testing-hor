@@ -1,9 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var allowedOrigins = [
+const allowedOrigins = [
     "http://localhost:5000",
     "http://localhost:3500",
     "http://localhost:5173",
 ];
-exports.default = allowedOrigins;
+export default allowedOrigins;
 //# sourceMappingURL=allowedOrigins.js.map

@@ -1,31 +1,25 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var multer_1 = __importDefault(require("multer"));
-var path_1 = __importDefault(require("path"));
+import multer from "multer";
+import path from "path";
 // * Konfigurasi storage untuk image dan video
-var storage = multer_1.default.diskStorage({
+const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         // * Menentukan folder tujuan berdasarkan field name
-        if (file.fieldname === "images" || file.fieldname === "image") {
-            cb(null, path_1.default.join(__dirname, "../public/assets/images"));
+        if (file.fieldname === "images" ||
+            file.fieldname === "image" ||
+            file.fieldname === "profilePict") {
+            cb(null, path.join(__dirname, "../public/assets/images"));
         }
         else if (file.fieldname === "video") {
-            cb(null, path_1.default.join(__dirname, "../public/assets/videos"));
-        }
-        else if (file.fieldname === "profilePict") {
-            cb(null, path_1.default.join(__dirname, "../public/assets/profilePict"));
+            cb(null, path.join(__dirname, "../public/assets/videos"));
         }
     },
     filename: function (req, file, cb) {
         // * Memberi nama file dengan format fieldname-timestamp.extensi
-        cb(null, file.fieldname + "-" + Date.now() + path_1.default.extname(file.originalname));
+        cb(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname));
     },
 });
 // * Konfigurasi filter untuk membatasi tipe file yang diterima
-var fileFilter = function (req, file, cb) {
+const fileFilter = (req, file, cb) => {
     // * Jika field name adalah images, maka hanya terima file dengan mimetype image
     if (file.fieldname === "images" ||
         file.fieldname === "profilePict" ||
@@ -35,7 +29,7 @@ var fileFilter = function (req, file, cb) {
         }
         else {
             cb(null, false);
-            var err = new Error("Only image format allowed");
+            const err = new Error("Only image format allowed");
             err.name = "ExtensionError";
             return cb(err);
         }
@@ -47,12 +41,12 @@ var fileFilter = function (req, file, cb) {
         }
         else {
             cb(null, false);
-            var err = new Error("Only video format allowed!");
+            const err = new Error("Only video format allowed!");
             err.name = "ExtensionError";
             return cb(err);
         }
     }
 };
-var upload = (0, multer_1.default)({ storage: storage, fileFilter: fileFilter, limits: { fileSize: 1024 * 1024 * 10 } });
-exports.default = upload;
+const upload = multer({ storage, fileFilter, limits: { fileSize: 1024 * 1024 * 10 } });
+export default upload;
 //# sourceMappingURL=multerConfig.js.map
