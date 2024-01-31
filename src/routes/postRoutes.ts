@@ -26,6 +26,6 @@ router.get("/self", verifyJwt, getSelfPosts);
 router.patch("/save/:postId", verifyJwt, savePost);
 router.patch("/upvote/:postId", verifyJwt, upvotePost); // * Undo and redo
 router.patch("/downvote/:postId", verifyJwt, downvotePost); // * Undo and redo
-router.route("/:postId").get(verifyJwt, getPost).delete(verifyJwt, deletePost);
+router.route("/:postId").get(getPost).delete(verifyJwt, deletePost);
 
 export default router;
