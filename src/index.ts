@@ -43,7 +43,7 @@ app.use("/tags", tagRoutes);
 app.get("/", async (req, res) => {
   try {
     res.writeHead(200, { "Content-Type": "text/html" });
-    res.write("Its working bitch");
+    res.write("Its working");
     res.end();
   } catch (error) {
     getErrorMessage(error);
