@@ -14,7 +14,8 @@ export const uploadToFirebase: RequestHandler = async (req, res, next) => {
 
     if (!file) return next();
 
-    const filename = `${uuidv4()}-${file.originalname}`;
+    const folder = file.mimetype.startsWith("image/") ? "images" : "videos";
+    const filename = `${folder}/${uuidv4()}-${file.originalname}`;
     const firebaseFile = bucket.file(filename);
     const blobStream = firebaseFile.createWriteStream({
       metadata: { contentType: file.mimetype },
@@ -53,7 +54,8 @@ export const uploadManyToFirebase: RequestHandler = async (req, res, next) => {
 
     // * Membuat array untuk menyimpan semua promise
     const promises = files.map(async (file: Express.Multer.File) => {
-      const filename = `${uuidv4()}-${file.originalname}`;
+      const folder = file.mimetype.startsWith("image/") ? "images" : "videos";
+      const filename = `${folder}/${uuidv4()}-${file.originalname}`;
       const firebaseFile = bucket.file(filename);
 
       const blobStream = firebaseFile.createWriteStream({

@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 import User from "../models/User";
-import deleteFile from "../utils/deleteFile";
 import bcrypt from "bcrypt";
 import getErrorMessage from "../utils/getErrorMessage";
 import { Types } from "mongoose";
+import deleteFileFirebase from "../utils/deleteFileFirebase";
 
 export const getUserProfile: RequestHandler = async (req, res) => {
   try {
@@ -77,6 +77,9 @@ export const updateUserProfile: RequestHandler = async (req, res) => {
     user.bio = bio || user.bio;
 
     if (profilePict) {
+      if (user.profilePict) {
+        deleteFileFirebase(user.profilePict);
+      }
       // @ts-ignore
       user.profilePict = profilePict.fileUrl;
     }
