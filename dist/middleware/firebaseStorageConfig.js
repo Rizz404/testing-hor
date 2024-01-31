@@ -1,18 +1,24 @@
-import multer from "multer";
-import { bucket } from "../config/firebaseConfig";
-import { v4 as uuidv4 } from "uuid";
-export const upload = multer({
-    storage: multer.memoryStorage(),
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.uploadManyToFirebase = exports.uploadToFirebase = exports.upload = void 0;
+const multer_1 = __importDefault(require("multer"));
+const firebaseConfig_1 = require("../config/firebaseConfig");
+const uuid_1 = require("uuid");
+exports.upload = (0, multer_1.default)({
+    storage: multer_1.default.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 10024 }, // * max 10 mb
 });
-export const uploadToFirebase = async (req, res, next) => {
+const uploadToFirebase = async (req, res, next) => {
     try {
         const file = req.file;
         if (!file)
             return next();
         const folder = file.mimetype.startsWith("image/") ? "images" : "videos";
-        const filename = `${folder}/${uuidv4()}-${file.originalname}`;
-        const firebaseFile = bucket.file(filename);
+        const filename = `${folder}/${(0, uuid_1.v4)()}-${file.originalname}`;
+        const firebaseFile = firebaseConfig_1.bucket.file(filename);
         const blobStream = firebaseFile.createWriteStream({
             metadata: { contentType: file.mimetype },
         });
@@ -23,7 +29,7 @@ export const uploadToFirebase = async (req, res, next) => {
             // * Kalo berhasil
             blobStream.on("finish", () => {
                 // @ts-ignore
-                file.fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filename)}?alt=media`;
+                file.fileUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig_1.bucket.name}/o/${encodeURIComponent(filename)}?alt=media`;
                 resolve();
             });
         });
@@ -36,7 +42,8 @@ export const uploadToFirebase = async (req, res, next) => {
         next(error);
     }
 };
-export const uploadManyToFirebase = async (req, res, next) => {
+exports.uploadToFirebase = uploadToFirebase;
+const uploadManyToFirebase = async (req, res, next) => {
     try {
         const files = req.files;
         if (!files || !Array.isArray(files))
@@ -44,8 +51,8 @@ export const uploadManyToFirebase = async (req, res, next) => {
         // * Membuat array untuk menyimpan semua promise
         const promises = files.map(async (file) => {
             const folder = file.mimetype.startsWith("image/") ? "images" : "videos";
-            const filename = `${folder}/${uuidv4()}-${file.originalname}`;
-            const firebaseFile = bucket.file(filename);
+            const filename = `${folder}/${(0, uuid_1.v4)()}-${file.originalname}`;
+            const firebaseFile = firebaseConfig_1.bucket.file(filename);
             const blobStream = firebaseFile.createWriteStream({
                 metadata: { contentType: file.mimetype },
             });
@@ -55,7 +62,7 @@ export const uploadManyToFirebase = async (req, res, next) => {
                 blobStream.on("finish", () => {
                     // * File berhasil diunggah ke Firebase Storage
                     // @ts-ignore
-                    file.fileUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filename)}?alt=media`;
+                    file.fileUrl = `https://firebasestorage.googleapis.com/v0/b/${firebaseConfig_1.bucket.name}/o/${encodeURIComponent(filename)}?alt=media`;
                     resolve();
                 });
                 blobStream.end(file.buffer);
@@ -69,4 +76,5 @@ export const uploadManyToFirebase = async (req, res, next) => {
         next(error);
     }
 };
+exports.uploadManyToFirebase = uploadManyToFirebase;
 //# sourceMappingURL=firebaseStorageConfig.js.map

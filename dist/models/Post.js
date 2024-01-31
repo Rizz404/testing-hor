@@ -1,19 +1,21 @@
-import { Schema, SchemaTypes, model } from "mongoose";
-const PostSchema = new Schema({
-    userId: { type: SchemaTypes.ObjectId, ref: "User", required: true },
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = require("mongoose");
+const PostSchema = new mongoose_1.Schema({
+    userId: { type: mongoose_1.SchemaTypes.ObjectId, ref: "User", required: true },
     title: { type: String, required: true, index: true },
-    tags: { type: [SchemaTypes.ObjectId], ref: "Tag", required: true, default: [] },
+    tags: { type: [mongoose_1.SchemaTypes.ObjectId], ref: "Tag", required: true, default: [] },
     images: { type: [String] },
     description: { type: String },
     upvotes: {
         count: { type: Number, default: 0 },
-        user: { type: [SchemaTypes.ObjectId], ref: "User", default: [] },
+        user: { type: [mongoose_1.SchemaTypes.ObjectId], ref: "User", default: [] },
     },
     downvotes: {
         count: { type: Number, default: 0 },
-        user: { type: [SchemaTypes.ObjectId], ref: "User", default: [] },
+        user: { type: [mongoose_1.SchemaTypes.ObjectId], ref: "User", default: [] },
     },
     commentsCount: { type: Number, default: 0 },
 }, { timestamps: true });
-export default model("Post", PostSchema);
+exports.default = (0, mongoose_1.model)("Post", PostSchema);
 //# sourceMappingURL=Post.js.map

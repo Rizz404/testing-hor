@@ -1,21 +1,26 @@
-import multer from "multer";
-import path from "path";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
 // * Konfigurasi storage untuk image dan video
-const storage = multer.diskStorage({
+const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         // * Menentukan folder tujuan berdasarkan field name
         if (file.fieldname === "images" ||
             file.fieldname === "image" ||
             file.fieldname === "profilePict") {
-            cb(null, path.join(__dirname, "../public/assets/images"));
+            cb(null, path_1.default.join(__dirname, "../public/assets/images"));
         }
         else if (file.fieldname === "video") {
-            cb(null, path.join(__dirname, "../public/assets/videos"));
+            cb(null, path_1.default.join(__dirname, "../public/assets/videos"));
         }
     },
     filename: function (req, file, cb) {
         // * Memberi nama file dengan format fieldname-timestamp.extensi
-        cb(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname));
+        cb(null, file.fieldname + "-" + Date.now() + path_1.default.extname(file.originalname));
     },
 });
 // * Konfigurasi filter untuk membatasi tipe file yang diterima
@@ -47,6 +52,6 @@ const fileFilter = (req, file, cb) => {
         }
     }
 };
-const upload = multer({ storage, fileFilter, limits: { fileSize: 1024 * 1024 * 10 } });
-export default upload;
+const upload = (0, multer_1.default)({ storage, fileFilter, limits: { fileSize: 1024 * 1024 * 10 } });
+exports.default = upload;
 //# sourceMappingURL=multerConfig.js.map

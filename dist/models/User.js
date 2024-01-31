@@ -1,5 +1,7 @@
-import { Schema, SchemaTypes, model } from "mongoose";
-const UserSchema = new Schema({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const mongoose_1 = require("mongoose");
+const UserSchema = new mongoose_1.Schema({
     username: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, minlength: 5 },
@@ -11,12 +13,12 @@ const UserSchema = new Schema({
     lastLogin: { type: Date },
     bio: { type: String },
     social: {
-        following: { type: [SchemaTypes.ObjectId], ref: "User", default: [] },
-        followers: { type: [SchemaTypes.ObjectId], ref: "User", default: [] },
-        savedPosts: { type: [SchemaTypes.ObjectId], ref: "Post", default: [] },
-        followedTags: { type: [SchemaTypes.ObjectId], ref: "Tag", default: [] },
-        blockedTags: { type: [SchemaTypes.ObjectId], ref: "Tag", default: [] },
+        following: { type: [mongoose_1.SchemaTypes.ObjectId], ref: "User", default: [] },
+        followers: { type: [mongoose_1.SchemaTypes.ObjectId], ref: "User", default: [] },
+        savedPosts: { type: [mongoose_1.SchemaTypes.ObjectId], ref: "Post", default: [] },
+        followedTags: { type: [mongoose_1.SchemaTypes.ObjectId], ref: "Tag", default: [] },
+        blockedTags: { type: [mongoose_1.SchemaTypes.ObjectId], ref: "Tag", default: [] },
     },
 }, { timestamps: true });
-export default model("User", UserSchema);
+exports.default = (0, mongoose_1.model)("User", UserSchema);
 //# sourceMappingURL=User.js.map

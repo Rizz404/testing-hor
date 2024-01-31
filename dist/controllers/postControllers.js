@@ -1,16 +1,22 @@
-import Post from "../models/Post";
-import User from "../models/User";
-import Tag from "../models/Tag";
-import { Types } from "mongoose";
-import deleteFile from "../utils/deleteFile";
-import Comment from "../models/Comment";
-import getErrorMessage from "../utils/getErrorMessage";
-export const createPost = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deletePost = exports.searchPostsByTitle = exports.savePost = exports.downvotePost = exports.upvotePost = exports.getPost = exports.getSelfPosts = exports.getSavedPosts = exports.getPosts = exports.createPost = void 0;
+const Post_1 = __importDefault(require("../models/Post"));
+const User_1 = __importDefault(require("../models/User"));
+const Tag_1 = __importDefault(require("../models/Tag"));
+const mongoose_1 = require("mongoose");
+const deleteFile_1 = __importDefault(require("../utils/deleteFile"));
+const Comment_1 = __importDefault(require("../models/Comment"));
+const getErrorMessage_1 = __importDefault(require("../utils/getErrorMessage"));
+const createPost = async (req, res) => {
     try {
         const { _id } = req.user;
         const { title, tags, description } = req.body;
         const images = req.files;
-        const newPost = new Post({
+        const newPost = new Post_1.default({
             userId: _id,
             title,
             tags,
@@ -20,15 +26,16 @@ export const createPost = async (req, res) => {
         });
         const savedPost = await newPost.save();
         tags.forEach(async (_id) => {
-            await Tag.findByIdAndUpdate({ _id }, { $push: { posts: savedPost._id }, $inc: { postsCount: 1 } });
+            await Tag_1.default.findByIdAndUpdate({ _id }, { $push: { posts: savedPost._id }, $inc: { postsCount: 1 } });
         });
         res.json(savedPost);
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const getPosts = async (req, res) => {
+exports.createPost = createPost;
+const getPosts = async (req, res) => {
     try {
         const { page = "1", limit = 20, category, userId } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
@@ -38,55 +45,55 @@ export const getPosts = async (req, res) => {
         switch (category) {
             case "home":
                 // * Ambil semua posts untuk halaman home
-                posts = await Post.find()
+                posts = await Post_1.default.find()
                     .limit(Number(limit))
                     .skip(skip)
                     .populate("userId", "username email profilePict")
                     .populate("tags", "name");
-                totalData = await Post.countDocuments();
+                totalData = await Post_1.default.countDocuments();
                 totalPages = Math.ceil(totalData / Number(limit));
                 break;
             case "top":
                 // * Ambil posts dengan upvotes terbanyak
-                posts = await Post.find()
+                posts = await Post_1.default.find()
                     .sort({ "upvotes.count": -1 })
                     .limit(Number(limit))
                     .skip(skip)
                     .populate("userId", "username email profilePict")
                     .populate("tags", "name");
-                totalData = await Post.countDocuments();
+                totalData = await Post_1.default.countDocuments();
                 totalPages = Math.ceil(totalData / Number(limit));
                 break;
             case "trending":
                 // * Ambil posts berdasarkan kriteria trending, posts dengan komentar terbanyak
-                posts = await Post.find()
+                posts = await Post_1.default.find()
                     .sort({ commentsCount: -1 })
                     .limit(Number(limit))
                     .skip(skip)
                     .populate("userId", "username email profilePict")
                     .populate("tags", "name");
-                totalData = await Post.countDocuments();
+                totalData = await Post_1.default.countDocuments();
                 totalPages = Math.ceil(totalData / Number(limit));
                 break;
             case "fresh":
                 // * Ambil posts terbaru
-                posts = await Post.find()
+                posts = await Post_1.default.find()
                     .sort({ createdAt: -1 })
                     .limit(Number(limit))
                     .skip(skip)
                     .populate("userId", "username email profilePict")
                     .populate("tags", "name");
-                totalData = await Post.countDocuments();
+                totalData = await Post_1.default.countDocuments();
                 totalPages = Math.ceil(totalData / Number(limit));
                 break;
             case "user":
                 // * Ambil posts dari user tertentu
-                posts = await Post.find({ userId })
+                posts = await Post_1.default.find({ userId })
                     .limit(Number(limit))
                     .skip(skip)
                     .populate("userId", "username email profilePict")
                     .populate("tags", "name");
-                totalData = await Post.countDocuments({ userId });
+                totalData = await Post_1.default.countDocuments({ userId });
                 totalPages = Math.ceil(totalData / Number(limit));
                 break;
             default:
@@ -113,17 +120,18 @@ export const getPosts = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const getSavedPosts = async (req, res) => {
+exports.getPosts = getPosts;
+const getSavedPosts = async (req, res) => {
     try {
         const { _id } = req.user;
         const { page = "1", limit = 20 } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
-        const user = await User.findById(_id);
+        const user = await User_1.default.findById(_id);
         const savedPost = user?.social.savedPosts;
-        const posts = await Post.find({ _id: { $in: savedPost } })
+        const posts = await Post_1.default.find({ _id: { $in: savedPost } })
             .limit(Number(limit))
             .skip(skip)
             .populate("userId", "username email profilePict")
@@ -149,20 +157,21 @@ export const getSavedPosts = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const getSelfPosts = async (req, res) => {
+exports.getSavedPosts = getSavedPosts;
+const getSelfPosts = async (req, res) => {
     try {
         const { _id } = req.user;
         const { page = "1", limit = 20 } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
-        const posts = await Post.find({ userId: _id })
+        const posts = await Post_1.default.find({ userId: _id })
             .limit(Number(limit))
             .skip(skip)
             .populate("userId", "username email profilePict")
             .populate("tags", "name");
-        const totalData = await Post.countDocuments();
+        const totalData = await Post_1.default.countDocuments();
         const totalPages = Math.ceil(totalData / Number(limit));
         res.json({
             data: posts,
@@ -183,42 +192,44 @@ export const getSelfPosts = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const getPost = async (req, res) => {
+exports.getSelfPosts = getSelfPosts;
+const getPost = async (req, res) => {
     try {
         const { postId } = req.params;
-        const post = await Post.findById(postId)
+        const post = await Post_1.default.findById(postId)
             .populate("userId", "username email profilePict")
             .populate("tags", "name");
         res.json(post);
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const upvotePost = async (req, res) => {
+exports.getPost = getPost;
+const upvotePost = async (req, res) => {
     try {
         const { _id } = req.user;
         const { postId } = req.params;
-        const post = await Post.findById(postId);
+        const post = await Post_1.default.findById(postId);
         if (!post)
             return res.status(404).json({ message: "Post not found" });
         const isUpvote = post?.upvotes.user.includes(_id);
         const isDownvote = post?.downvotes.user.includes(_id);
         let upvotedPost;
         if (!isUpvote) {
-            upvotedPost = await Post.findByIdAndUpdate({ _id: postId }, {
+            upvotedPost = await Post_1.default.findByIdAndUpdate({ _id: postId }, {
                 $push: { "upvotes.user": _id },
                 $inc: { "upvotes.count": 1 },
                 ...(isDownvote && { $pull: { "downvotes.user": _id }, $inc: { "downvotes.count": -1 } }),
             });
         }
         else {
-            upvotedPost = await Post.findByIdAndUpdate({ _id: postId }, { $pull: { "upvotes.user": _id }, $inc: { "upvotes.count": -1 } });
+            upvotedPost = await Post_1.default.findByIdAndUpdate({ _id: postId }, { $pull: { "upvotes.user": _id }, $inc: { "upvotes.count": -1 } });
         }
-        if (!upvotePost || upvotedPost === null)
+        if (!exports.upvotePost || upvotedPost === null)
             return;
         upvotedPost.upvotes.count = upvotedPost.upvotes.user.length;
         upvotedPost.downvotes.count = upvotedPost.downvotes.user.length;
@@ -230,30 +241,31 @@ export const upvotePost = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const downvotePost = async (req, res) => {
+exports.upvotePost = upvotePost;
+const downvotePost = async (req, res) => {
     try {
         const { _id } = req.user;
         const { postId } = req.params;
-        const post = await Post.findById(postId);
+        const post = await Post_1.default.findById(postId);
         if (!post)
             return res.status(404).json({ message: "Post not found" });
         const isDownvote = post?.downvotes.user.includes(_id);
         const isUpvote = post?.upvotes.user.includes(_id);
         let downvotedPost;
         if (!isDownvote) {
-            downvotedPost = await Post.findByIdAndUpdate({ _id: postId }, {
+            downvotedPost = await Post_1.default.findByIdAndUpdate({ _id: postId }, {
                 $push: { "downvotes.user": _id },
                 $inc: { "downvotes.count": 1 },
                 ...(isUpvote && { $pull: { "upvotes.user": _id }, $inc: { "upvotes.count": -1 } }),
             });
         }
         else {
-            downvotedPost = await Post.findByIdAndUpdate({ _id: postId }, { $pull: { "downvotes.user": _id }, $inc: { "downvotes.count": -1 } });
+            downvotedPost = await Post_1.default.findByIdAndUpdate({ _id: postId }, { $pull: { "downvotes.user": _id }, $inc: { "downvotes.count": -1 } });
         }
-        if (!upvotePost || downvotedPost === null)
+        if (!exports.upvotePost || downvotedPost === null)
             return;
         downvotedPost.upvotes.count = downvotedPost.upvotes.user.length;
         downvotedPost.downvotes.count = downvotedPost.downvotes.user.length;
@@ -265,22 +277,23 @@ export const downvotePost = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const savePost = async (req, res) => {
+exports.downvotePost = downvotePost;
+const savePost = async (req, res) => {
     try {
         const { postId } = req.params;
         const { _id } = req.user;
-        const postIdObjId = new Types.ObjectId(postId);
-        const user = await User.findById(_id);
+        const postIdObjId = new mongoose_1.Types.ObjectId(postId);
+        const user = await User_1.default.findById(_id);
         const isPostSaved = user?.social.savedPosts.includes(postIdObjId);
         let savedPost;
         if (!isPostSaved) {
-            savedPost = await User.findByIdAndUpdate({ _id }, { $push: { "social.savedPosts": postIdObjId } });
+            savedPost = await User_1.default.findByIdAndUpdate({ _id }, { $push: { "social.savedPosts": postIdObjId } });
         }
         else {
-            savedPost = await User.findByIdAndUpdate({ _id }, { $pull: { "social.savedPosts": postIdObjId } });
+            savedPost = await User_1.default.findByIdAndUpdate({ _id }, { $pull: { "social.savedPosts": postIdObjId } });
         }
         res.json({
             message: !isPostSaved
@@ -289,17 +302,18 @@ export const savePost = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const searchPostsByTitle = async (req, res) => {
+exports.savePost = savePost;
+const searchPostsByTitle = async (req, res) => {
     try {
         // * kalau post tidak ada lebih baik mengembalikan array kosong dari pada 404
         const { title, page = "1" } = req.query;
         const limit = 10;
         const skip = (Number(page) - 1) * limit;
         const posts = title?.toString().trim() !== "" &&
-            (await Post.find({ title: { $regex: title, $options: "i" } })
+            (await Post_1.default.find({ title: { $regex: title, $options: "i" } })
                 .limit(limit)
                 .skip(skip)
                 .populate("userId", "username email profilePict")
@@ -307,25 +321,27 @@ export const searchPostsByTitle = async (req, res) => {
         res.json(posts);
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const deletePost = async (req, res) => {
+exports.searchPostsByTitle = searchPostsByTitle;
+const deletePost = async (req, res) => {
     try {
         const { postId } = req.params;
-        const post = await Post.findByIdAndDelete(postId);
+        const post = await Post_1.default.findByIdAndDelete(postId);
         if (!post)
             return res.status(404).json({ message: "Post not found" });
         if (post.images && post.images.length <= 0) {
-            post.images.forEach(async (image) => await deleteFile("images", image));
+            post.images.forEach(async (image) => await (0, deleteFile_1.default)("images", image));
         }
-        await Comment.deleteMany({ postId });
-        await User.updateMany({ "social.savedPosts": postId }, { $pull: { "social.savedPosts": postId } });
-        await Tag.updateMany({ posts: postId }, { $pull: { posts: postId } });
+        await Comment_1.default.deleteMany({ postId });
+        await User_1.default.updateMany({ "social.savedPosts": postId }, { $pull: { "social.savedPosts": postId } });
+        await Tag_1.default.updateMany({ posts: postId }, { $pull: { posts: postId } });
         res.json({ message: `Successfully deleted post with ID: ${post._id}` });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
+exports.deletePost = deletePost;
 //# sourceMappingURL=postControllers.js.map

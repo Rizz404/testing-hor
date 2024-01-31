@@ -1,13 +1,19 @@
-import Tag from "../models/Tag";
-import getErrorMessage from "../utils/getErrorMessage";
-import User from "../models/User";
-import { Types } from "mongoose";
-export const createTag = async (req, res) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.blockTag = exports.followTag = exports.getPostsByTagName = exports.searchTagsByName = exports.getTag = exports.getTags = exports.createTag = void 0;
+const Tag_1 = __importDefault(require("../models/Tag"));
+const getErrorMessage_1 = __importDefault(require("../utils/getErrorMessage"));
+const User_1 = __importDefault(require("../models/User"));
+const mongoose_1 = require("mongoose");
+const createTag = async (req, res) => {
     try {
         const { name, description } = req.body;
         if (!name)
             return res.status(400).json({ message: "Some field need to be filled" });
-        const newTag = new Tag({
+        const newTag = new Tag_1.default({
             name,
             ...(description && { description }),
         });
@@ -15,10 +21,11 @@ export const createTag = async (req, res) => {
         res.json({ message: `Tag ${savedTag.name} has been created` });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const getTags = async (req, res) => {
+exports.createTag = createTag;
+const getTags = async (req, res) => {
     try {
         const { page = "1", limit = 20, category } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
@@ -27,18 +34,18 @@ export const getTags = async (req, res) => {
         let tags;
         switch (category) {
             case "featured-tag":
-                tags = await Tag.find().limit(10).sort({ postsCount: -1 }).select("name");
-                totalData = await Tag.countDocuments();
+                tags = await Tag_1.default.find().limit(10).sort({ postsCount: -1 }).select("name");
+                totalData = await Tag_1.default.countDocuments();
                 totalPages = Math.ceil(totalData / Number(limit));
                 break;
             case "all":
-                tags = await Tag.find().limit(Number(limit)).skip(skip);
-                totalData = await Tag.countDocuments();
+                tags = await Tag_1.default.find().limit(Number(limit)).skip(skip);
+                totalData = await Tag_1.default.countDocuments();
                 totalPages = Math.ceil(totalData / Number(limit));
                 break;
             default:
-                tags = await Tag.find().limit(Number(limit)).skip(skip);
-                totalData = await Tag.countDocuments();
+                tags = await Tag_1.default.find().limit(Number(limit)).skip(skip);
+                totalData = await Tag_1.default.countDocuments();
                 totalPages = Math.ceil(totalData / Number(limit));
                 break;
         }
@@ -58,25 +65,27 @@ export const getTags = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const getTag = async (req, res) => {
+exports.getTags = getTags;
+const getTag = async (req, res) => {
     try {
         const { tagId } = req.params;
-        const tag = await Tag.findById(tagId);
+        const tag = await Tag_1.default.findById(tagId);
         res.json(tag);
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const searchTagsByName = async (req, res) => {
+exports.getTag = getTag;
+const searchTagsByName = async (req, res) => {
     try {
         const { name, page = "1" } = req.query;
         const limit = 10;
         const skip = (Number(page) - 1) * limit;
-        const tag = await Tag.find({ name: { $regex: name, $options: "i" } })
+        const tag = await Tag_1.default.find({ name: { $regex: name, $options: "i" } })
             .limit(limit)
             .skip(skip)
             .select("name postsCount");
@@ -86,15 +95,16 @@ export const searchTagsByName = async (req, res) => {
         res.json(tag);
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const getPostsByTagName = async (req, res) => {
+exports.searchTagsByName = searchTagsByName;
+const getPostsByTagName = async (req, res) => {
     try {
         const { name } = req.params;
         const { page = "1", limit = "20" } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
-        const tag = await Tag.findOne({ name }).populate({
+        const tag = await Tag_1.default.findOne({ name }).populate({
             path: "posts",
             options: { limit: Number(limit), skip: Number(skip) },
         });
@@ -119,59 +129,62 @@ export const getPostsByTagName = async (req, res) => {
         });
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const followTag = async (req, res) => {
+exports.getPostsByTagName = getPostsByTagName;
+const followTag = async (req, res) => {
     try {
         const { _id } = req.user;
         const { tagId } = req.params;
-        const tagIdObjId = new Types.ObjectId(tagId);
-        const user = await User.findById(_id);
+        const tagIdObjId = new mongoose_1.Types.ObjectId(tagId);
+        const user = await User_1.default.findById(_id);
         const isFollowed = user?.social.followedTags.includes(tagIdObjId);
         const isBlocked = user?.social.blockedTags.includes(tagIdObjId);
         let followedTag;
         if (!isFollowed) {
-            followedTag = await User.findByIdAndUpdate({ _id }, {
+            followedTag = await User_1.default.findByIdAndUpdate({ _id }, {
                 $push: { "social.followedTags": tagIdObjId },
                 ...(isBlocked && { $pull: { "social.blockedTags": tagIdObjId } }),
             }, { new: true });
         }
         else {
-            followedTag = await User.findByIdAndUpdate({ _id }, {
+            followedTag = await User_1.default.findByIdAndUpdate({ _id }, {
                 $pull: { "social.followedTags": tagIdObjId },
             }, { new: true });
         }
         res.json(followedTag);
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
-export const blockTag = async (req, res) => {
+exports.followTag = followTag;
+const blockTag = async (req, res) => {
     try {
         const { _id } = req.user;
         const { tagId } = req.params;
-        const tagIdObjId = new Types.ObjectId(tagId);
-        const user = await User.findById(_id);
+        const tagIdObjId = new mongoose_1.Types.ObjectId(tagId);
+        const user = await User_1.default.findById(_id);
         const isBlocked = user?.social.blockedTags.includes(tagIdObjId);
         const isFollowed = user?.social.followedTags.includes(tagIdObjId);
         let blockedTag;
         if (!isBlocked) {
-            blockedTag = await User.findByIdAndUpdate({ _id }, {
+            blockedTag = await User_1.default.findByIdAndUpdate({ _id }, {
                 $push: { "social.blockedTags": tagIdObjId },
                 ...(isFollowed && { $pull: { "social.followedTags": tagIdObjId } }),
             }, { new: true });
         }
         else {
-            blockedTag = await User.findByIdAndUpdate({ _id }, {
+            blockedTag = await User_1.default.findByIdAndUpdate({ _id }, {
                 $pull: { "social.blockedTags": tagIdObjId },
             }, { new: true });
         }
         res.json(blockedTag);
     }
     catch (error) {
-        res.status(500).json({ message: getErrorMessage(error) });
+        res.status(500).json({ message: (0, getErrorMessage_1.default)(error) });
     }
 };
+exports.blockTag = blockTag;
 //# sourceMappingURL=tagControllers.js.map

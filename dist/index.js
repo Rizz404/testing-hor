@@ -1,40 +1,45 @@
-import express from "express";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import helmet from "helmet";
-import morgan from "morgan";
-import "dotenv/config";
-import authRoutes from "./routes/authRoutes";
-import logger from "./middleware/logger";
-import corsOptions from "./middleware/corsConfig";
-import userRoutes from "./routes/userRoutes";
-import postRoutes from "./routes/postRoutes";
-import commentRoutes from "./routes/commentRoutes";
-import tagRoutes from "./routes/tagRoutes";
-import credentials from "./middleware/credentials";
-import path from "path";
-import getErrorMessage from "./utils/getErrorMessage";
-const app = express();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const mongoose_1 = __importDefault(require("mongoose"));
+const body_parser_1 = __importDefault(require("body-parser"));
+const cors_1 = __importDefault(require("cors"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const helmet_1 = __importDefault(require("helmet"));
+const morgan_1 = __importDefault(require("morgan"));
+require("dotenv/config");
+const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
+const logger_1 = __importDefault(require("./middleware/logger"));
+const corsConfig_1 = __importDefault(require("./middleware/corsConfig"));
+const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const postRoutes_1 = __importDefault(require("./routes/postRoutes"));
+const commentRoutes_1 = __importDefault(require("./routes/commentRoutes"));
+const tagRoutes_1 = __importDefault(require("./routes/tagRoutes"));
+const credentials_1 = __importDefault(require("./middleware/credentials"));
+const path_1 = __importDefault(require("path"));
+const getErrorMessage_1 = __importDefault(require("./utils/getErrorMessage"));
+const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 // * Middleware configuration
-app.use(bodyParser.json({ limit: "30mb" }));
-app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-app.use(cookieParser());
-app.use(credentials);
-app.use(cors(corsOptions));
-app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" })); // ! buat image harus begini
-app.use(morgan("dev"));
-app.use(morgan("combined", { stream: logger }));
-app.use("/assets", express.static(path.join(__dirname, "./public/assets")));
+app.use(body_parser_1.default.json({ limit: "30mb" }));
+app.use(body_parser_1.default.urlencoded({ limit: "30mb", extended: true }));
+app.use((0, cookie_parser_1.default)());
+app.use(credentials_1.default);
+app.use((0, cors_1.default)(corsConfig_1.default));
+app.use((0, helmet_1.default)());
+app.use(helmet_1.default.crossOriginResourcePolicy({ policy: "cross-origin" })); // ! buat image harus begini
+app.use((0, morgan_1.default)("dev"));
+app.use((0, morgan_1.default)("combined", { stream: logger_1.default }));
+app.use("/assets", express_1.default.static(path_1.default.join(__dirname, "./public/assets")));
 // * Routes
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
-app.use("/posts", postRoutes);
-app.use("/comments", commentRoutes);
-app.use("/tags", tagRoutes);
+app.use("/auth", authRoutes_1.default);
+app.use("/users", userRoutes_1.default);
+app.use("/posts", postRoutes_1.default);
+app.use("/comments", commentRoutes_1.default);
+app.use("/tags", tagRoutes_1.default);
 // * Add a simple view for root
 app.get("/", async (req, res) => {
     try {
@@ -43,13 +48,13 @@ app.get("/", async (req, res) => {
         res.end();
     }
     catch (error) {
-        getErrorMessage(error);
+        (0, getErrorMessage_1.default)(error);
     }
 });
 // * Server configuration
-mongoose
+mongoose_1.default
     .connect(process.env.DB_URI || "")
     .then(() => app.listen(PORT, () => console.log(`Server run on port ${PORT}`)))
     .catch((error) => console.log(error));
-export default app;
+exports.default = app;
 //# sourceMappingURL=index.js.map

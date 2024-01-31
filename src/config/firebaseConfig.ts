@@ -1,8 +1,11 @@
-import admin, { ServiceAccount } from "firebase-admin";
-import serviceAccount from "../happiness-overload-firebase-adminsdk-c7rx1-0aa9bc76b6.json";
+import admin from "firebase-admin";
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as ServiceAccount),
+  credential: admin.credential.cert({
+    projectId: process.env.PROJECT_ID,
+    privateKey: process.env.PRIVATE_KEY,
+    clientEmail: process.env.CLIENT_EMAIL,
+  }),
   storageBucket: "gs://happiness-overload.appspot.com",
 });
 

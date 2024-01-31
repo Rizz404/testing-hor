@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const statusCodes = {
     100: "CONTINUE",
     101: "SWITCHING_PROTOCOLS",
@@ -35,5 +37,5 @@ const statusCodes = {
     504: "GATEWAY_TIMEOUT",
     505: "HTTP_VERSION_NOT_SUPPORTED",
 };
-export default statusCodes;
+exports.default = statusCodes;
 //# sourceMappingURL=statusCodes.js.map
