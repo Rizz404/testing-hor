@@ -364,8 +364,12 @@ export const searchPostsByTitle: RequestHandler = async (req, res) => {
 
 export const deletePost: RequestHandler = async (req, res) => {
   try {
+    const { _id } = req.user;
     const { postId } = req.params;
-    const post = await Post.findByIdAndDelete(postId);
+    const post = await Post.findOneAndDelete({ _id: postId, userId: _id });
+
+    // * Sama kaya pake and seperti ini
+    // const post = await Post.findOneAndDelete({ $and: [{ _id: postId }, { userId: _id }] });
 
     if (!post) return res.status(404).json({ message: "Post not found" });
 

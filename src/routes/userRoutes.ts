@@ -9,7 +9,7 @@ import {
   getFollowers,
   searchUsers,
 } from "../controllers/userControllers";
-import verifyJwt from "../middleware/verifyJwt";
+import authenticateAndAuthorize from "../middleware/authenticateAndAuthorize";
 import { uploadToFirebase, upload } from "../middleware/firebaseStorageConfig";
 
 const router = express.Router();
@@ -18,11 +18,16 @@ const router = express.Router();
 router.get("/", getUsers);
 router
   .route("/profile")
-  .get(verifyJwt, getUserProfile)
-  .patch(verifyJwt, upload.single("profilePict"), uploadToFirebase, updateUserProfile);
-router.get("/following", verifyJwt, getFollowings);
-router.get("/followers", verifyJwt, getFollowers);
-router.patch("/follow/:userId", verifyJwt, followUser); // * Undo and redo
+  .get(authenticateAndAuthorize(["User", "Admin"]), getUserProfile)
+  .patch(
+    authenticateAndAuthorize(["User", "Admin"]),
+    upload.single("profilePict"),
+    uploadToFirebase,
+    updateUserProfile
+  );
+router.get("/following", authenticateAndAuthorize(["User", "Admin"]), getFollowings);
+router.get("/followers", authenticateAndAuthorize(["User", "Admin"]), getFollowers);
+router.patch("/follow/:userId", authenticateAndAuthorize(["User", "Admin"]), followUser); // * Undo and redo
 
 // * No auth
 router.get("/search", searchUsers);

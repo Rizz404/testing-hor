@@ -9,25 +9,27 @@ import {
   upvoteComment,
   downvoteComment,
 } from "../controllers/commentControllers";
-import verifyJwt from "../middleware/verifyJwt";
+import authenticateAndAuthorize from "../middleware/authenticateAndAuthorize";
 import { uploadToFirebase, upload } from "../middleware/firebaseStorageConfig";
 
 const router = express.Router();
 
-// * Dibawah sini adalah routes yang harus login dulu
-router.use(verifyJwt);
-// * Ilmu baru yaitu optional params dengan ?
 router
   .route("/create/:postId/:parentId?")
-  .post(verifyJwt, upload.single("image"), uploadToFirebase, createComment);
+  .post(
+    authenticateAndAuthorize(["User", "Admin"]),
+    upload.single("image"),
+    uploadToFirebase,
+    createComment
+  );
 router.route("/post/:postId").get(getPostComments);
 router.get("/replies/:commentId", getReplies);
-router.patch("/upvote/:commentId", verifyJwt, upvoteComment); // * Undo and redo
-router.patch("/downvote/:commentId", verifyJwt, downvoteComment); // * Undo and redo
+router.patch("/upvote/:commentId", authenticateAndAuthorize(["User", "Admin"]), upvoteComment); // * Undo and redo
+router.patch("/downvote/:commentId", authenticateAndAuthorize(["User", "Admin"]), downvoteComment); // * Undo and redo
 router
   .route("/:commentId")
   .get(getComment)
-  .patch(verifyJwt, updateComment)
-  .delete(verifyJwt, deleteComment);
+  .patch(authenticateAndAuthorize(["User", "Admin"]), updateComment)
+  .delete(authenticateAndAuthorize(["User", "Admin"]), deleteComment);
 
 export default router;
