@@ -16,6 +16,7 @@ import tagRoutes from "./routes/tagRoutes";
 import credentials from "./middleware/credentials";
 import path from "path";
 import getErrorMessage from "./utils/getErrorMessage";
+import allowedOrigins from "./config/allowedOrigins";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,8 +25,7 @@ const PORT = process.env.PORT || 5000;
 app.use(bodyParser.json({ limit: "30mb" }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cookieParser());
-app.use(credentials);
-app.use(cors(corsOptions));
+app.use(cors({ origin: allowedOrigins, credentials: true, optionsSuccessStatus: 200 }));
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" })); // ! buat image harus begini
 // app.use(morgan("dev")); // ! netlify itu readonly jadi gabisa add log otomatis
