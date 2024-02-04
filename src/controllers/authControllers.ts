@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 import getErrorMessage from "../utils/getErrorMessage";
 import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 
 export const register: RequestHandler = async (req, res) => {
   try {
@@ -86,7 +87,8 @@ export const loginWithGoogle: RequestHandler = async (req, res) => {
     let user = await User.findOne({ email }).select("-__v -createdAt -updatedAt -password");
 
     if (!user) {
-      const randomUsername = String(fullname).split(" ")[0] + uuidv4();
+      const firstName = String(fullname).split(" ")[0];
+      const randomUsername = `${firstName}-${randomUUID()}`;
 
       user = new User({
         username: randomUsername,
