@@ -46,6 +46,7 @@ const getPosts = async (req, res) => {
             case "home":
                 // * Ambil semua posts untuk halaman home
                 posts = await Post_1.default.find()
+                    .select("-upvotes.user -downvotes.user")
                     .limit(Number(limit))
                     .skip(skip)
                     .populate("userId", "username email profilePict")
@@ -56,6 +57,7 @@ const getPosts = async (req, res) => {
             case "top":
                 // * Ambil posts dengan upvotes terbanyak
                 posts = await Post_1.default.find()
+                    .select("-upvotes.user -downvotes.user")
                     .sort({ "upvotes.count": -1 })
                     .limit(Number(limit))
                     .skip(skip)
@@ -67,6 +69,7 @@ const getPosts = async (req, res) => {
             case "trending":
                 // * Ambil posts berdasarkan kriteria trending, posts dengan komentar terbanyak
                 posts = await Post_1.default.find()
+                    .select("-upvotes.user -downvotes.user")
                     .sort({ commentsCount: -1 })
                     .limit(Number(limit))
                     .skip(skip)
@@ -78,6 +81,7 @@ const getPosts = async (req, res) => {
             case "fresh":
                 // * Ambil posts terbaru
                 posts = await Post_1.default.find()
+                    .select("-upvotes.user -downvotes.user")
                     .sort({ createdAt: -1 })
                     .limit(Number(limit))
                     .skip(skip)
@@ -89,6 +93,7 @@ const getPosts = async (req, res) => {
             case "user":
                 // * Ambil posts dari user tertentu
                 posts = await Post_1.default.find({ userId })
+                    .select("-upvotes.user -downvotes.user")
                     .limit(Number(limit))
                     .skip(skip)
                     .populate("userId", "username email profilePict")
@@ -327,8 +332,11 @@ const searchPostsByTitle = async (req, res) => {
 exports.searchPostsByTitle = searchPostsByTitle;
 const deletePost = async (req, res) => {
     try {
+        const { _id } = req.user;
         const { postId } = req.params;
-        const post = await Post_1.default.findByIdAndDelete(postId);
+        const post = await Post_1.default.findOneAndDelete({ _id: postId, userId: _id });
+        // * Sama kaya pake and seperti ini
+        // const post = await Post.findOneAndDelete({ $and: [{ _id: postId }, { userId: _id }] });
         if (!post)
             return res.status(404).json({ message: "Post not found" });
         if (post.images && post.images.length <= 0) {

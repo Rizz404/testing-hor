@@ -12,7 +12,7 @@ const deleteFileFirebase_1 = __importDefault(require("../utils/deleteFileFirebas
 const getUserProfile = async (req, res) => {
     try {
         const { _id } = req.user;
-        const user = await User_1.default.findById(_id).select("-social");
+        const user = await User_1.default.findById(_id).select("-social -password");
         if (!user)
             return res.status(404).json({ message: `User with ${_id} not found!` });
         res.json(user);

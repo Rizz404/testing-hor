@@ -8,7 +8,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const getErrorMessage_1 = __importDefault(require("../utils/getErrorMessage"));
-const uuid_1 = require("uuid");
+const crypto_1 = require("crypto");
 const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -82,7 +82,8 @@ const loginWithGoogle = async (req, res) => {
         const { email, fullname } = req.body;
         let user = await User_1.default.findOne({ email }).select("-__v -createdAt -updatedAt -password");
         if (!user) {
-            const randomUsername = String(fullname).split(" ")[0] + (0, uuid_1.v4)();
+            const firstName = String(fullname).split(" ")[0];
+            const randomUsername = `${firstName}-${(0, crypto_1.randomUUID)()}`;
             user = new User_1.default({
                 username: randomUsername,
                 email,

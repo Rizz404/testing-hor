@@ -5,18 +5,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const userControllers_1 = require("../controllers/userControllers");
-const verifyJwt_1 = __importDefault(require("../middleware/verifyJwt"));
+const authenticateAndAuthorize_1 = __importDefault(require("../middleware/authenticateAndAuthorize"));
 const firebaseStorageConfig_1 = require("../middleware/firebaseStorageConfig");
 const router = express_1.default.Router();
 // * prefixnya user
 router.get("/", userControllers_1.getUsers);
 router
     .route("/profile")
-    .get(verifyJwt_1.default, userControllers_1.getUserProfile)
-    .patch(verifyJwt_1.default, firebaseStorageConfig_1.upload.single("profilePict"), firebaseStorageConfig_1.uploadToFirebase, userControllers_1.updateUserProfile);
-router.get("/following", verifyJwt_1.default, userControllers_1.getFollowings);
-router.get("/followers", verifyJwt_1.default, userControllers_1.getFollowers);
-router.patch("/follow/:userId", verifyJwt_1.default, userControllers_1.followUser); // * Undo and redo
+    .get((0, authenticateAndAuthorize_1.default)(["User", "Admin"]), userControllers_1.getUserProfile)
+    .patch((0, authenticateAndAuthorize_1.default)(["User", "Admin"]), firebaseStorageConfig_1.upload.single("profilePict"), firebaseStorageConfig_1.uploadToFirebase, userControllers_1.updateUserProfile);
+router.get("/following", (0, authenticateAndAuthorize_1.default)(["User", "Admin"]), userControllers_1.getFollowings);
+router.get("/followers", (0, authenticateAndAuthorize_1.default)(["User", "Admin"]), userControllers_1.getFollowers);
+router.patch("/follow/:userId", (0, authenticateAndAuthorize_1.default)(["User", "Admin"]), userControllers_1.followUser); // * Undo and redo
 // * No auth
 router.get("/search", userControllers_1.searchUsers);
 router.get("/:userId", userControllers_1.getUserById);

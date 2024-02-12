@@ -8,7 +8,7 @@ import deleteFileFirebase from "../utils/deleteFileFirebase";
 export const getUserProfile: RequestHandler = async (req, res) => {
   try {
     const { _id } = req.user;
-    const user = await User.findById(_id).select("-social");
+    const user = await User.findById(_id).select("-social -password");
 
     if (!user) return res.status(404).json({ message: `User with ${_id} not found!` });
 

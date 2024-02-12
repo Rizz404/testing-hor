@@ -11,22 +11,20 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const helmet_1 = __importDefault(require("helmet"));
 require("dotenv/config");
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
-const corsConfig_1 = __importDefault(require("./middleware/corsConfig"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const postRoutes_1 = __importDefault(require("./routes/postRoutes"));
 const commentRoutes_1 = __importDefault(require("./routes/commentRoutes"));
 const tagRoutes_1 = __importDefault(require("./routes/tagRoutes"));
-const credentials_1 = __importDefault(require("./middleware/credentials"));
 const path_1 = __importDefault(require("path"));
 const getErrorMessage_1 = __importDefault(require("./utils/getErrorMessage"));
+const allowedOrigins_1 = __importDefault(require("./config/allowedOrigins"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 // * Middleware configuration
 app.use(body_parser_1.default.json({ limit: "30mb" }));
 app.use(body_parser_1.default.urlencoded({ limit: "30mb", extended: true }));
 app.use((0, cookie_parser_1.default)());
-app.use(credentials_1.default);
-app.use((0, cors_1.default)(corsConfig_1.default));
+app.use((0, cors_1.default)({ origin: allowedOrigins_1.default, credentials: true, optionsSuccessStatus: 200 }));
 app.use((0, helmet_1.default)());
 app.use(helmet_1.default.crossOriginResourcePolicy({ policy: "cross-origin" })); // ! buat image harus begini
 // app.use(morgan("dev")); // ! netlify itu readonly jadi gabisa add log otomatis
@@ -42,7 +40,7 @@ app.use("/tags", tagRoutes_1.default);
 app.get("/", async (req, res) => {
     try {
         res.writeHead(200, { "Content-Type": "text/html" });
-        res.write("Its working bitch");
+        res.write("Its working");
         res.end();
     }
     catch (error) {
@@ -50,8 +48,24 @@ app.get("/", async (req, res) => {
     }
 });
 // * Server configuration
+const NODE_ENV = process.env.NODE_ENV;
+const DB_URI = process.env.DB_URI;
+const DB_URI_LOCAL = process.env.DB_URI_LOCAL;
+if (!NODE_ENV) {
+    console.error("Error: NODE_ENV environment variable is not set");
+    process.exit(1);
+}
+else if (!DB_URI) {
+    console.error("Error: DB_URI environment variable is not set");
+    process.exit(1);
+}
+else if (!DB_URI_LOCAL) {
+    console.error("Error: DB_URI_LOCAL environment variable is not set");
+    process.exit(1);
+}
+// * Server configuration
 mongoose_1.default
-    .connect(process.env.DB_URI || "")
+    .connect(NODE_ENV !== "development" ? DB_URI : DB_URI_LOCAL)
     .then(() => app.listen(PORT, () => console.log(`Server run on port ${PORT}`)))
     .catch((error) => console.log(error));
 exports.default = app;
