@@ -55,19 +55,9 @@ const NODE_ENV = process.env.NODE_ENV;
 const DB_URI = process.env.DB_URI;
 const DB_URI_LOCAL = process.env.DB_URI_LOCAL;
 
-if (!NODE_ENV) {
-  console.error("Error: NODE_ENV environment variable is not set");
-  process.exit(1);
-} else if (!DB_URI) {
-  console.error("Error: DB_URI environment variable is not set");
-  process.exit(1);
-} else if (!DB_URI_LOCAL) {
-  console.error("Error: DB_URI_LOCAL environment variable is not set");
-  process.exit(1);
-}
 // * Server configuration
 mongoose
-  .connect(NODE_ENV !== "development" ? DB_URI : DB_URI_LOCAL)
+  .connect((NODE_ENV || "") !== "development" ? DB_URI || "" : DB_URI_LOCAL || "")
   .then(() => app.listen(PORT, () => console.log(`Server run on port ${PORT}`)))
   .catch((error) => console.log(error));
 
