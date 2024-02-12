@@ -51,13 +51,10 @@ app.get("/", async (req, res) => {
 });
 
 // * Server configuration
-const NODE_ENV = process.env.NODE_ENV;
-const DB_URI = process.env.DB_URI;
-const DB_URI_LOCAL = process.env.DB_URI_LOCAL;
 
 // * Server configuration
 mongoose
-  .connect((NODE_ENV || "") !== "development" ? DB_URI || "" : DB_URI_LOCAL || "")
+  .connect(process.env.DB_URI || "")
   .then(() => app.listen(PORT, () => console.log(`Server run on port ${PORT}`)))
   .catch((error) => console.log(error));
 
